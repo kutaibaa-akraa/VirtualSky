@@ -1,0 +1,494 @@
+<html dir="rtl">
+<head>
+	<title>تعديل إعدادات السماء الافتراضية</title>
+	<!--
+		Virtual Sky <canvas> application
+		(c) 2010-2012 Stuart Lowe (Las Cumbras Observatory Global Telescope)
+	-->
+		<!-- هذا الستايل مأخوذ من صفحة ernie-wright-planisphere من ملف Astro.css
+		-->
+	<style>
+	body {
+			font-family:Tahoma;
+   			background-color: #1A1D2B;
+   			color: #aaa;
+   			text-decoration: none;
+   			word-spacing: normal;
+   			text-align: right;
+   			letter-spacing: 0;
+   			line-height: 1.5em;
+   			font-size: 1em;
+   			margin: 0;
+   			padding: 0;
+    }
+	li.options .i {
+		clear: both;
+		min-height: 2em;
+	}
+	li.options .p {
+		display: inline-block;
+		width: 18em;
+	}
+	li.options .o {
+		display: inline-block;
+		margin-right: 15px;
+	}
+	li.options .h {
+		margin-bottom: 1em;
+		display: inline-block;
+		opacity: 0.2;
+		filter: alpha(20);
+	}
+	li.options .i:hover .h {
+		opacity: 0.7;
+		filter: alpha(70);
+	}
+	a:link, a:visited, a:hover, a:active {text-decoration: none;border-bottom: 1px dotted;
+	}
+	a:link {color: #8890a8;
+	}
+	a:visited {color: #997a63;
+	}
+	a:hover {color: #a8a080;background-color: #2b2632;
+	}
+	</style>
+	<!--[if lt IE 9]><script src="excanvas.min.js"></script><![endif]-->
+	<script src="jquery-1.7.1.min.js"></script>
+	<script src="virtualsky-0.4.2.min.js" type="text/javascript"></script>
+
+	<script>
+		window.onload = function(){
+			skydefault = $.virtualsky();
+			$('.version').html(skydefault.version);
+			planetarium = $.virtualsky({id:'preview',width:500,height:350});
+			planetarium.draw();
+			update();
+		};
+		var changedtime = false;
+		function update(el) {
+			property = (el) ? el.name : "";
+			value = (el) ? el.value : "";
+
+			if(property == 'projection') planetarium.selectProjection(value);
+			if(property == 'mouse') planetarium.mouse = (value == "true") ? true: false;
+			if(property == 'keyboard') planetarium.keyboard = (value == "true") ? true: false;
+			if(property == 'gradient') planetarium.gradient = (value == "true") ? true: false;
+			if(property == 'negative') planetarium.negative = (value == "true") ? true: false;
+			if(property == 'cardinalpoints') planetarium.cardinalpoints = (value == "true") ? true: false;
+			if(property == 'constellations') planetarium.constellation.lines = (value == "true") ? true: false;
+			if(property == 'constellationlabels') planetarium.constellation.labels = (value == "true") ? true: false;
+			if(property == 'constellationboundaries') planetarium.constellation.boundaries = (value == "true") ? true: false;
+			if(property == 'meteorshowers') planetarium.meteorshowers = (value == "true") ? true: false;
+			if(property == 'showstars') planetarium.showstars = (value == "true") ? true: false;
+			if(property == 'showstarlabels') planetarium.showstarlabels = (value == "true") ? true: false;
+			if(property == 'showplanets') planetarium.showplanets = (value == "true") ? true: false;
+			if(property == 'showplanetlabels') planetarium.showplanetlabels = (value == "true") ? true: false;
+			if(property == 'showorbits') planetarium.showorbits = (value == "true") ? true: false;
+			if(property == 'showdate') planetarium.showdate = (value == "true") ? true: false;
+			if(property == 'showposition') planetarium.showposition = (value == "true") ? true: false;
+			if(property == 'ecliptic') planetarium.ecliptic = (value == "true") ? true: false;
+			if(property == 'meridian') planetarium.meridian = (value == "true") ? true: false;
+			if(property == 'gridlines_az') planetarium.grid.az = (value == "true") ? true: false;
+			if(property == 'gridlines_eq') planetarium.grid.eq = (value == "true") ? true: false;
+			if(property == 'gridlines_gal') planetarium.grid.gal = (value == "true") ? true: false;
+			if(property == 'showgalaxy') planetarium.showgalaxy = (value == "true") ? true: false;
+			if(property == 'clock'){
+				if(value){
+					planetarium.clock = new Date(value);
+					changedtime = true;
+				}else{
+					planetarium.clock = new Date();
+					changedtime = false;
+				}
+			}
+			if(property == 'dimensions'){
+				dim = value.split('x');
+				if(dim.length == 2){
+					planetarium.resize(dim[0],dim[1]);
+					el = document.getElementById(planetarium.id+'');
+					$('#'+planetarium.id+'').css({'height':planetarium.tall,'width':planetarium.wide})
+				}
+			}
+			el = document.getElementById('dimensions');
+			el.value = planetarium.wide+'x'+planetarium.tall;
+			if(property == 'position'){
+				pos = value.split(',');
+				planetarium.setLatitude(pos[0]);
+				planetarium.setLongitude(pos[1]);
+			}
+			if(property == 'background') planetarium.background = value;
+			if(property == 'color') planetarium.color = value;
+			if(property == 'magnitude') planetarium.magnitude = parseFloat(value);
+			if(property == 'scalestars') planetarium.scalestars = parseFloat(value);
+
+			if(property == 'az_off') planetarium.az_off = value;
+			el = document.getElementById('az_off');
+			el.value = ((planetarium.az_off+180)%360);
+
+			el = document.getElementById('position');
+			el.value = (planetarium.latitude*planetarium.r2d)+','+(planetarium.longitude*planetarium.r2d);
+			//if(typeof jQuery != 'undefined') $('#'+planetarium.id).unbind('click').unbind('mousemove').unbind('mousedown').unbind('mouseup');
+			//if(typeof jQuery != 'undefined'){
+			//	$('#'+planetarium.id).bind('mouseup',function(){
+			//		update();
+			//	});
+			//}
+
+			planetarium.draw();
+
+			if(property == 'live') planetarium.liveSky();
+
+			var str = "<iframe width=\""+planetarium.wide+"\" height=\""+planetarium.tall+"\" frameborder=\"0\" scrolling=\"no\" marginheight=\"0\" marginwidth=\"0\" src=\"";
+			var uri = "http://kutaibaa-akraa.github.io/VirtualSky/embed.html?";
+			uri += "longitude="+(planetarium.longitude*planetarium.r2d);
+			uri += "&latitude="+(planetarium.latitude*planetarium.r2d);
+			if(skydefault.gradient != planetarium.gradient) uri += "&gradient="+planetarium.gradient;
+			if(skydefault.projection != planetarium.projection) uri += "&projection="+planetarium.projection.id;
+			if(skydefault.negative != planetarium.negative) uri += "&negative="+planetarium.negative;
+			if(skydefault.mouse != planetarium.mouse) uri += "&mouse="+planetarium.mouse;
+			if(skydefault.keyboard != planetarium.keyboard) uri += "&keyboard="+planetarium.keyboard;
+			if(skydefault.cardinalpoints != planetarium.cardinalpoints) uri += "&cardinalpoints="+planetarium.cardinalpoints;
+			if(skydefault.constellation.lines != planetarium.constellation.lines) uri += "&constellations="+planetarium.constellation.lines;
+			if(skydefault.constellation.labels != planetarium.constellation.labels) uri += "&constellationlabels="+planetarium.constellation.labels;
+			if(skydefault.constellation.boundaries != planetarium.constellation.boundaries) uri += "&constellationboundaries="+planetarium.constellation.boundaries;
+			if(skydefault.meteorshowers != planetarium.meteorshowers) uri += "&meteorshowers="+planetarium.meteorshowers;
+			if(skydefault.showstars != planetarium.showstars) uri += "&showstars="+planetarium.showstars;
+			if(skydefault.showstarlabels != planetarium.showstarlabels) uri += "&showstarlabels="+planetarium.showstarlabels;
+			if(skydefault.scalestars != planetarium.scalestars) uri += "&scalestars="+planetarium.scalestars;
+			if(skydefault.showplanets != planetarium.showplanets) uri += "&showplanets="+planetarium.showplanets;
+			if(skydefault.showplanetlabels != planetarium.showplanetlabels) uri += "&showplanetlabels="+planetarium.showplanetlabels;
+			if(skydefault.showorbits != planetarium.showorbits) uri += "&showorbits="+planetarium.showorbits;
+			if(skydefault.showdate != planetarium.showdate) uri += "&showdate="+planetarium.showdate;
+			if(skydefault.showposition != planetarium.showposition) uri += "&showposition="+planetarium.showposition;
+			if(skydefault.ecliptic != planetarium.ecliptic) uri += "&ecliptic="+planetarium.ecliptic;
+			if(skydefault.meridian != planetarium.meridian) uri += "&meridian="+planetarium.meridian;
+			if(skydefault.grid.az != planetarium.grid.az) uri += "&gridlines_az="+planetarium.grid.az;
+			if(skydefault.grid.eq != planetarium.grid.eq) uri += "&gridlines_eq="+planetarium.grid.eq;
+			if(skydefault.grid.gal != planetarium.grid.gal) uri += "&gridlines_gal="+planetarium.grid.gal;
+			if(skydefault.showgalaxy != planetarium.showgalaxy) uri += "&showgalaxy="+planetarium.showgalaxy;
+			if(skydefault.background != planetarium.background) uri += "&background="+planetarium.background;
+			if(skydefault.color != planetarium.color) uri += "&color="+planetarium.color;
+			if(skydefault.magnitude != planetarium.magnitude) uri += "&magnitude="+planetarium.magnitude;
+			if(skydefault.islive != planetarium.islive) uri += "&live="+planetarium.islive;
+			if(skydefault.az_off != planetarium.az_off) uri += "&az="+((planetarium.az_off+180)%360);
+			if(changedtime) uri += "&clock="+planetarium.clock;
+			str += encodeURI(uri);
+			str += "\" allowTransparency=\"true\"></iframe>";
+
+			el = document.getElementById('embedcode');
+			el.value = str
+		}
+	</script>
+	
+</head>
+
+<body>
+<a href="http://lcogt.net/"><img src="lcogt.png" style="border:0px;float:right; margin-right: 20px;width:100px;margin-left:20px;" /></a>
+<h1 dir="ltr" align="center">Virtual Sky<sup style="font-size:0.4em;">(v<span class="version"></span>)</sup></h1>
+<h1 dir="rtl" align="center">السماء الافتراضية<sup style="font-size:0.4em;">(v<span class="version"></span>)</sup></h1>
+<p style="margin:18px;"><a href="http://lcogt.net/virtualsky">السماء الافتراضية Virtual Sky</a> هو بمثابة قبة فلكية أو خارطة سماوية صممت لتضمينها في صفحات الويب و تشغيلها باستخدام مستكشفات الويب. اختر الإعدادات التي تحب من الإعدادات المفضلة , قم بمعاينة هذه التفضيلات في البند الثاني و تأكد من شكل الخارطة المرغوب, و من ثم في البند الثالث تستطيع نسخ الكود الظاهر في الصندوق و تضمينه في أي صفحة ويب تريدها.</p>
+<p style="margin:18px;">تمت ترجمة هذه الصفحة من موقع LCOGT و من صفحة تخصيص خارطة السماء <a href="http://lcogt.net/virtualsky/embed/custom.html"> customized and included on your own website</a> و لكن بعد التعديل إلى عنوان صفحة الخرائط العربية على موقعي الخاص .</p>
+<p style="margin:18	px"></p>
+<form>
+<ol>
+	<li class="options">
+
+		<h2>الإعدادات المفضلة</h2>
+		<div class="i">
+			<div class="p">نوع الإسقاط</div>
+			<div class="o" dir="ltr">
+			<select name="projection" onChange="update(this)">
+			<option selected>polar</option>
+			<option>stereo</option>
+			<option>lambert</option>
+			<option>equirectangular</option>
+			<option>mollweide</option>
+			<option>planechart</option>
+			<option>gnomic</option>
+			</select>
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">حجم الخارطة بالبكسل (Width/Height)</div>
+			<div class="o">
+			<input type="text" name="dimensions" dir="ltr" id="dimensions" value="" onChange="update(this)" /> e.g. 500x400
+			</div>
+		</div>
+
+		<div class="i">
+
+			<div class="p">تاريخ محدد</div>
+			<div class="o">
+			<input type="text" name="clock" dir="ltr" value="" onChange="update(this)" /> صيغة التوقيت  Sun, 02 Jan 2011 14:46:28 +0000 (للتوقيت الحالي اتركه فارغاً بدون أي قيمة)
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">إحداثيات المكان (الطول/العرض)</div>
+
+			<div class="o">
+			<input type="text" name="position" id="position" dir="ltr" value="" onChange="update(this)" />تقدر بالدرجات و أجزائها بالفاصلة العشرية
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">تموضع الخارطة بالزاوية الأفقية (الانحراف)</div>
+			<div class="o">
+			<input type="text" name="az_off" id="az_off" dir="ltr" value="" onChange="update(this)" /> تقدر بالدرجات و أجزائها العشرية   الشمال=0, الشرق=90, الجنوب=180, الغرب=270 (مثال : 186.5)
+			</div>
+
+		</div>
+
+		<div class="i">
+			<div class="p">لون الخلفية</div>
+			<div class="o">
+			<input type="text" name="background" id="background" dir="ltr" value="rgba(0,0,0,0)" onChange="update(this)" /> الأساس خلفية شفافة<span dir="ltr"> rgba(0,0,0,0)</span>(مخصصة للإسقاطين polar/mollweide )
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">لون الخط</div>
+			<div class="o">
+			<input type="text" name="color" id="color" dir="ltr" value="" onChange="update(this)" /> مثال : اللون الأزرق <span dir="ltr">#3366dd</span> (للإعداد الاساسي اترك الصندوق فارغاً)
+			</div>
+		</div>
+
+		<div class="i">
+
+			<div class="p">قدر النجوم المرئية حتى القيمة:</div>
+			<div class="o">
+			<input type="text" name="magnitude" id="magnitude" dir="ltr" value="5" onChange="update(this)" /> زيادة عدد النجوم المرئية يتطلب رفع قيمة الحد إلى أعلى قيمةو بارتفاع القيمة  يعني رؤية النجوم الأخفت  .
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">مقياس قدر أحجام النجوم الظاهري</div>
+			<div class="o">
+				<input type="text" name="scalestars" id="scalestars" dir="ltr" value="1" onChange="update(this)" />تغيير هذه القيمة يسمح بتكبير أو تصغير حجم النقاط التي تمثل نجوماً على الخارطة.
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">تدرج لون السماء  ؟</div>
+
+			<div class="o" dir="ltr">
+			<input type="radio" name="gradient" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="gradient" value="false" onChange="update(this)" /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">التحكم باستخدام الفأرة ؟</div>
+			<div class="o" dir="ltr">
+
+			<input type="radio" name="mouse" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="mouse" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">يمكنك هذا الخيار من استخدام الفأرة للتنقل في الخارطة بالسحب و الإفلات .</div>
+		</div>
+
+		<div class="i">
+			<div class="p">التحكم باستخدام لوحة المفاتيح ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="keyboard" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="keyboard" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">يمكنك هذا الخيار من استخدام اختصارات المفاتيح الخاصة بالخارطة بعد وضع مؤشر الفأرة فوق الخارطة.</div>
+		</div>
+
+		<div class="i">
+			<div class="p">عكس ألوان السماء ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="negative" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="negative" value="false" onChange="update(this)" checked /> No
+			</div>
+			<div class="h">يجعل هذا الخيار لون النجوم أسود و خلفية السماء بلون أبيض, و يفيد في عملية الطباعة.</div>
+		</div>
+
+		<div class="i">
+			<div class="p">مواضع الاتجاهات ؟ (البوصلة)</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="cardinalpoints" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="cardinalpoints" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">إظهار أو إخفاء  الاتجاهات "شمال", "جنوب", "شرق" , "غرب"</div>
+		</div>
+
+		<div class="i">
+			<div class="p">خطوط الكوكبات ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="constellations" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="constellations" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+
+			<div class="p">أسماء الكوكبات ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="constellationlabels" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="constellationlabels" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+
+			<div class="p">حدود الكوكبات ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="constellationboundaries" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="constellationboundaries" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">زخات شهب ؟</div>
+
+			<div class="o" dir="ltr">
+			<input type="radio" name="meteorshowers" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="meteorshowers" value="false" onChange="update(this)" checked /> No
+			</div>
+			<div class="h">تحدد مكان الزخات الشهبية للوقت الحالي و موضعها بالاسم</div>
+		</div>
+
+		<div class="i">
+			<div class="p">إظهار الكواكب ؟</div>
+			<div class="o" dir="ltr">
+				<input type="radio" name="showplanets" value="true" onChange="update(this)" checked /> Yes
+				<input type="radio" name="showplanets" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">و سيظهر معها أيضاً الشمس و القمر .</div>
+		</div>
+
+		<div class="i">
+			<div class="p">أسماء الكواكب ؟</div>
+
+			<div class="o" dir="ltr">
+			<input type="radio" name="showplanetlabels" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="showplanetlabels" value="false" onChange="update(this)" /> No
+			</div>
+
+		</div>
+
+		<div class="i">
+			<div class="p">إظهار النجوم ؟</div>
+			<div class="o" dir="ltr">
+				<input type="radio" name="showstars" value="true" onChange="update(this)" checked /> Yes
+				<input type="radio" name="showstars" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">و سيظهر معها الشمس و القمر .</div>
+		</div>
+		<div class="i">
+			<div class="p">أسماء النجوم ؟</div>
+
+			<div class="o" dir="ltr">
+			<input type="radio" name="showstarlabels" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="showstarlabels" value="false" onChange="update(this)" checked /> No
+			</div>
+
+			<div class="h">تظهر أسماء ألمع النجوم في السماء. "Sirius", "Deneb", "Pollux" و العديد من النجوم .</div>
+		</div>
+
+
+		<div class="i">
+			<div class="p">مدارات الكواكب ؟</div>
+
+			<div class="o" dir="ltr">
+			<input type="radio" name="showorbits" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="showorbits" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">التاريخ و الوقت ؟</div>
+			<div class="o" dir="ltr">
+
+			<input type="radio" name="showdate" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="showdate" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">إظهار أو إخفاء التوقيت و التاريخ في الزاوية العلوية اليسرى من الخارطة.</div>
+		</div>
+
+		<div class="i">
+			<div class="p">إحداثيات المكان</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="showposition" value="true" onChange="update(this)" checked /> Yes
+			<input type="radio" name="showposition" value="false" onChange="update(this)" /> No
+			</div>
+			<div class="h">إظهار أو إخفاء إحداثيات المكان في الزاوية العلوية اليسرى من الخارطة.</div>
+
+		</div>
+
+		<div class="i">
+			<div class="p">دائرة البروج ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="ecliptic" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="ecliptic" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">خط منتصف النهار ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="meridian" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="meridian" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">خطوط الإحداثيات السمتية ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="gridlines_az" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="gridlines_az" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">خطوط الإحداثيات الاستوائية ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="gridlines_eq" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="gridlines_eq" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">خطوط الإحداثيات المجريّة ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="gridlines_gal" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="gridlines_gal" value="false" onChange="update(this)" checked /> No
+			</div>
+		</div>
+
+		<div class="i">
+			<div class="p">إظهار المستوى المجري ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="showgalaxy" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="showgalaxy" value="false" onChange="update(this)" checked /> No
+			</div>
+			<div class="h">إظهار الشكل العام لمستوي المجرة.</div>
+		</div>
+
+		<div class="i">
+			<div class="p">توقيت حي  ؟</div>
+			<div class="o" dir="ltr">
+			<input type="radio" name="live" value="true" onChange="update(this)" /> Yes
+			<input type="radio" name="live" value="false" onChange="update(this)" checked /> No
+			</div>
+			<div class="h">سيتم تحديث الخارطة كل ثانية </div>
+		</div>
+	</li>
+
+	<li>
+		<h2>معاينة السماء وفق الإعدادات المدخلة </h2>
+		<div id="preview" style="margin-bottom:10px;" dir="ltr"></div>
+	</li>
+	<li>
+		<h2>كود التضمين في صفحة ويب</h2>
+		<p>انسخ هذا الكود الموجود في الصندوق و قم بلصقه داخل صفحة الويب التي تعمل عليها .</p>
+		<textarea dir="ltr" name="embed" id="embedcode" rows="5" cols="100" onFocus="this.select()"></textarea>
+	</li>
+</ol>
+</form>
+<p dir="rtl" align="center"><a href="https://sites.google.com/site/interactiveastronomy" target="blanck">إعداد : قتيبة أقرع</a></p>
+</body>
+</html>
