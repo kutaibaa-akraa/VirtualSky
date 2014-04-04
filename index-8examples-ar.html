@@ -1,0 +1,456 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>خارطة السماء الافتراضية</title>
+	<!--
+		VirtualSky <canvas> application
+		(c) 2010 Stuart Lowe (Las Cumbras Observatory Global Telescope)
+	-->
+    <link rel="stylesheet" type="text/css" media="screen" href="extra/prettify.css">
+	<style>
+	body {
+		font-family: 'Trebuchet MS',Tahoma,Helvetica,Verdana,sans-serif;
+		color: black;
+		margin: 0px;
+		padding: 0px;
+	}
+	#bgholder {
+		position: absolute; 
+		left: 0px;
+		right: 0px;
+		top: 0px;
+		height: 400px;
+		width: 100%;
+	}
+	#bg { 
+		width: 100%;
+		height: 100%;
+	}
+	.content {
+		max-width:940px;
+		margin:auto;
+		position: relative;
+		padding: 2em;
+		background-color: white;
+		margin-top: 100px;
+	}
+	#forkme_banner {
+		background: url("http://slowe.github.io/graph/images/blacktocat.png") no-repeat scroll 95% 50% #0090FF;
+		border-bottom-left-radius: 2px;
+		border-bottom-right-radius: 2px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+		color: #FFFFFF;
+		display: block;
+		font-weight: 700;
+		padding: 10px 50px 10px 10px;
+		position: absolute;
+		right: 0px;
+		top: -100px;
+		z-index: 10;
+		text-decoration: none;
+	}
+	ol {
+		margin: 0px;
+		padding: 0px;
+		counter-reset: li; /* Initiate a counter */
+		list-style: none; /* Remove default numbering */
+		*list-style: decimal; /* Keep using default numbering for IE6/7 */
+	}
+	ol li.example:before{
+		content: "نموذج " counter(li) ": ";
+		counter-increment: li;
+		font-size: 1.5em;
+		line-height: 2em;
+		text-align: right;
+		font-weight: bold;
+		direction: rtl;    /* هذه الإضافة لتوجيه الكتابة من اليمين إلى اليسار */
+		display: block;
+	}
+	li.example { margin-bottom: 4em; }
+	.virtualskyhelp li { margin-bottom: 0; }
+	.planetarium { max-width: 100%; height: 0;}
+	</style>
+	<!--[if lt IE 9]><script src="excanvas.min.js"></script><![endif]-->
+	<script src="jquery-1.10.0.min.js"></script>
+	<script src="virtualsky.min.js" type="text/javascript"></script>
+	<script src="extra/prettify.js" type="text/javascript"></script>
+	<script>
+	$(document).ready(function() {
+
+		// Set up the prettification of code blocks
+		prettyPrint();
+
+		var vs = $.virtualsky({id:'starmap',projection:'stereo',gridlines_az:true,gridlines_eq:true,constellations:true,live:true,az:90});
+		var planetariumbg = $.virtualsky({id:'bg',az:120,gridlines_eq:true,showorbits:true,showstarlabels:true,meteorshowers:true,constellations:true,projection:'stereo',credit:false,showdate:false,showposition:false});
+		var planetarium = $.virtualsky({id:'starmap1'});
+		var planetarium2 = $.virtualsky({id:'starmap2',projection:'stereo',az:225,constellations:true,constellationboundaries:true,boundaries:[
+			["And",343,34.5,343,52.5,350,52.5,350,50,353.75,50,353.75,48,2.5,48,2.5,46,13,46,13,48,16.75,48,16.75,50,20.5,50,25,50,25,47,30.625,47,30.625,50.5,37.75,50.5,37.75,36.75,30,36.75,30,35,21.125,35,21.125,33,10.75,33,10.75,23.75,12.75,23.75,12.75,21,2.125,21,2.125,22,1,22,1,28,0,28,0,31.33333,356.25,31.33333,356.25,32.08333,352.5,32.08333,352.5,34.5,343,34.5],
+			["Ori",69.25,0,69.25,15.5,74.5,15.5,74.5,16,80,16,80,15.5,84,15.5,84,12.5,86.5,12.5,86.5,18,85.5,18,85.5,22.83333,88.25,22.83333,88.25,21.5,93.25,21.5,93.25,17.5,94.625,17.5,94.625,12,94.625,10,93.625,10,93.625,0,93.625,-4,87.5,-4,87.5,-11,76.25,-11,76.25,-4,70,-4,70,0,69.25,0]
+				],clock:new Date("July 17, 2013 18:39:00 GMT")
+		});
+		var planetarium3 = $.virtualsky({id:'starmap3', projection:'stereo', mouse:true, keyboard:true, latitude:34.4326, longitude:-119.86286});
+		var planetarium4 = $.virtualsky({id:'starmap4', projection:'lambert', mouse:true, keyboard:false, az:0, negative:true, constellations:true, latitude:53.5, longitude:-2.5});
+		var planetarium5 = $.virtualsky({id:'starmap5', projection:'stereo', keyboard:false, mouse:false, az:135, latitude:38.25, longitude:-122.6, meridian: true, clock:new Date("October 25, 1985 01:21:00"), gridlines_gal: true});
+		var planetarium6 = $.virtualsky({id:'starmap6', projection:'mollweide', showstarlabels:true, az:180, ground:true});
+		var planetarium7 = $.virtualsky({
+			id: 'starmap7',
+			projection: 'stereo',
+			clock:new Date("July 17, 2013 18:39:00 GMT")
+		});
+	
+		planetarium7.addPointer({
+			'ra':83.8220792,
+			'dec':-5.3911111,
+			'label':'Orion Nebula',
+			'img':'http://server7.sky-map.org/imgcut?survey=DSS2&w=128&h=128&ra=5.58813861333333&de=-5.3911111&angle=1.25&output=PNG',
+			'url':'http://simbad.u-strasbg.fr/simbad/sim-id?Ident=M42',
+			'credit':'Wikisky',
+			colour:'rgb(255,220,220)'
+		});
+
+		var planetarium8 = $.virtualsky({
+			id: 'starmap8',
+			projection: 'gnomic',
+			ra: 83.8220833,
+			dec:-5.3911111,
+			ground:false,
+			constellations: true,
+			fov: 15
+		});
+
+		var planetarium9 = $.virtualsky({
+			id: 'starmap9',
+			projection: 'gnomic',
+			ra: 83.8220833,
+			dec:-5.3911111,
+			ground:false,
+			constellations: true,
+			fov: 15
+		});
+
+		$('button#pleiades').on('click',function(){
+			planetarium9.panTo(56.8690917,24.1053111,3000)
+		});
+		$('button#M82').on('click',function(){
+			planetarium9.panTo(148.9684583,69.6797028,3000)
+		});
+		$('button#M1').on('click',function(){
+			planetarium9.panTo(83.6330833,22.0145000,3000)
+		});
+		$('button#M42').on('click',function(){
+			planetarium9.panTo(83.8220833,-5.3911111,3000)
+		});
+	});
+	</script>
+</head>
+
+<body>
+
+	<div id="bgholder"><div id="bg"></div></div>
+
+	<div class="content">
+		<a id="forkme_banner" href="https://github.com/slowe/VirtualSky">Fork Me on GitHub</a>
+			<a id="forkme_banner" style="padding: 10px 30px 10px 10px;right:230px;" href="index-8examples-en.html">English</a>
+		<h1 dir="rtl">خارطة السماء الافتراضية VirtualSky</h1>
+
+		<p dir="rtl">السماء الافتراضية VirtualSky هو بمثابة خارطة فلكية تعمل ضمن متصفح الويب من موقع مرصد <a href="http://lcogt.net/">LCOGT</a> تمكنك هذه الخارطة من رؤية نجوم السماء في أي وقت تشاء و من أي موقع في الأرض. يمكنك تغيير إعدادات الخارطة من هنا <a href="http://lcogt.net/virtualsky/embed/custom.html">customized and included on your own website</a>. تم تصميم هذه الخارطة للاستخدام المجاني للأغراض التعليمية و للاستخدامات النفعية غير المادية.</p>
+		<p dir="rtl">و حالياً يمكنك الرجوع إلى هذه الصفحة <a href="http://kutaibaa-akraa.github.io/VirtualSky/Customize Virtual Sky-ar.htm">تضمين خارطة  السماء في صفحة ويب</a> بواجهة عربية مترجمة و تغيير إعدادات الخارطة التي تريد و تضمينها في صفحة الويب التي تعمل عليها , مع ملاحظة أن أسماء الكوكبات و الكواكب و بعض مظاهر الخارطة جرى تعريبها .</p>
+		<div id="starmap" class="planetarium" style="width:100%;height:300px;"></div>
+
+		<ul dir="rtl">
+			<li><a href="#keys">اختصارات لوحة المفاتيح</a></li>
+			<li><a href="#instructions">تعليمات للمساعدة في تضمين الخارطة داخل صفحة ويب</a>
+				<ul>
+					<li><a href="#ex1">نموذج 1</a></li>
+					<li><a href="#ex2">نموذج 2</a></li>
+					<li><a href="#ex3">نموذج 3</a></li>
+					<li><a href="#ex4">نموذج 4</a></li>
+					<li><a href="#ex5">نموذج 5</a></li>
+					<li><a href="#ex6">نموذج 6</a></li>
+					<li><a href="#ex7">نموذج 7</a></li>
+					<li><a href="#ex8">نموذج 8</a></li>
+				</ul>
+			</li>
+			<li><a href="#options">الخيارات المتاحة للتحكم بها</a>
+			<li><a href="#tech">تفاصيل تقنية</a>
+		</ul>
+
+		<h2 dir="rtl" id="keys">اختصارات لوحة المفاتيح</h2>
+		<p dir="rtl">يمكنك بالضغط عل زر "?" (بعد أن تضع مؤشر الفأرة فوق الخارطة) من استدعاء لائحة تظهر فيها جميع أختصارات لوحة المفاتيح للتحكم بالخارطة.</p>
+		
+		<h2 dir="rtl" id="instructions">تعليمات للمساعدة في تضمين الخارطة داخل صفحة ويب</h2>
+		<p dir="rtl">من أسهل الطرق لتضمين خارطة السماء الافتراضية في صفحة ويب هي بالعودة إلى هذه الروابط  <br>
+		<ul dir="rtl">
+		<li><a href="http://lcogt.net/virtualsky/embed/custom.html" target="blanck"> easiest way to include VirtualSky on your website</a> (يستخدم هنا الوسم الخاص بالتضمين و هو <code>&lt;iframe&gt;</code>).</li>
+		<li> و الرابط الخاص بتعديل الخرائط العربية من صفحة <a href="http://kutaibaa-akraa.github.io/VirtualSky/Customize Virtual Sky-ar.htm" target="blanck">تضمين خارطة  السماء في صفحة ويب</a> (يستخدم هنا الوسم<code>&lt;iframe&gt;</code>)</li>
+		</ul>
+		</p>
+		<p dir="rtl">في أحيان كثيرة يكون الوسم <code>&lt;iframe&gt;</code> غير كافِ لإعطائك حرية الاختيار و تخصيص الخارطة السماوية بالشكل الملائم (و خصوصاً إن كنت ترغب في تضمين صفحة الخارطة في صفحة ويب و تشغيلها بدون اتصال مع شبكة الويب). و في هذه الحالة قم بتنزيل ملفات المصدر من الموقع <a href="https://github.com/slowe/VirtualSky">the source from GitHub</a> و ضمّن السماء الافتراضية داخل صفحتك باستخدام الجافاسكربت Javascript. و يتوجب عليك إدراج هذه الأكواد في ترويسة الصفحة <code>&lt;head&gt;</code> التي تعمل عليها:</p>
+		<pre class="prettyprint lang-html lang-js">
+&lt;!--[if lt IE 9]&gt;&lt;script src="excanvas.min.js"&gt;&lt;/script&gt;&lt;![endif]--&gt;
+&lt;script src="jquery-1.10.0.min.js"&gt;&lt;/script&gt;
+&lt;script src="virtualsky.min.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script&gt;
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap1'
+	});
+
+});
+&lt;/script&gt;
+</pre>
+<p dir="rtl">تحرّى دائماً عند كتابة أكواد السكريبت أن تشير بشكل صحيح إلى ملفات الجافاسكريبت Javascript الصحيحة لكل حالة من الحالات. و في جسم الصفحة  <code>&lt;body&gt;</code> يجب عليك أن تشمل DOM element التي أشرت إليها باستخدام التعريف ID:</p>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap1" style="width:400px;height:400px;"&gt;&lt;/div&gt;
+</pre>
+
+		<p dir="rtl">أنظر إلى النتيجة :</p>
+		<div id="starmap1" class="planetarium" align="right" style="width:400px;height:400px;"></div>
+
+		<p dir="rtl">هذه نسخة من خارطة السماء الافتراضية VirtualSky و فيها جميع القيم الافتراضية للخارطة دون تغيير بدون أيّة تفضيلات مخصصة. و في نفس الوقت ,إحدى الميزات الرائعة لخارطة السماء الافتراضية هو إمكانية تخصيص طريقة العرض بطرق مختلفة . و نورد هنا العديد من النماذج لإعطاء فكرة عن ذلك :</p>
+		<ol>
+			<li class="example" id="ex1"> <p  dir="rtl">إسقاط ستيريوغرافي <code>stereo</code> و سماء مدينة Santa Barbara's و إحداثياتها lat/long:</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap',
+		projection: 'stereo', 
+		latitude: 34.4326, 
+		longitude: -119.86286
+	});
+});</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:100%;height:500px;"&gt;&lt;/div&gt;
+</pre>
+				<div id="starmap3" class="planetarium" style="width:100%;height:500px;"></div>
+			</li>
+			<li class="example" id="ex2"><p dir="rtl">إسقاط لامبرت <code>lambert</code>, و تظهر في هذه الخارطة خطوط الكوكبات و أزرار التحكم بلوحة المفاتيح ملغاة و أرضية السماء بيضاء و النجوم سوداء . تتجه الخارطة نحو الشمال و تمثل سماء مدينة Manchester,UK :</p>
+		
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap', 
+		projection: 'lambert', 
+		mouse: true,
+		keyboard: false, 
+		az: 0, 
+		negative: true, 
+		constellations: true, 
+		latitude: 53.5,
+		longitude: -2.5
+	});
+});</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:500px;height:300px;"&gt;&lt;/div&gt;
+</pre>
+				<div id="starmap4" class="planetarium" style="width:500px;height:300px;"></div>
+			</li>
+			<li class="example" id="ex3"><p dir="rtl">إسقاط ستيريوغرافي <code>stereo</code> و هنا تمّ إلغاء تفعيل التحكم بلوحة المفاتيح و الفأرة ! و يظهر في الخارطة خط الزوال ( منتصف النهار ) و خطوط الإحداثيات المجرّيّة. تتجه الخارطة ناحية الجنوب الشرقي <br> مكان الرصد من Hill Valley, California و التوقيت و التاريخ هو  <span dir="ltr">1:21 am on October 25, 1985</span>.</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap',
+		projection: 'stereo',
+		keyboard: false, 
+		mouse: false, 
+		az: 135,
+		meridian: true,
+		latitude: 38.25, 
+		longitude: -122.6, 
+		clock: new Date("October 25, 1985 01:21:00"),
+		gridlines_gal: true
+	});
+});</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:650px;height:300px;"&gt;&lt;/div&gt;
+</pre>
+				<div id="starmap5" class="planetarium" style="width:650px;height:300px;"></div>
+			</li>
+			<li class="example" id="ex4"><p dir="rtl">إسقاط مولوايد <code>mollweide</code> و تظهر في الخارطة أسماء النجوم و خط الأفق للراصد يقسم السماء إلى نصفين.</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap',
+		projection: 'mollweide',
+		showstarlabels: true,
+		ground: true
+	});
+});</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:920px;height:460px;"&gt;&lt;/div&gt;
+</pre>
+				<div id="starmap6" class="planetarium" style="width:920px;height:460px;"></div>
+			</li>
+			<li class="example" id="ex5"><p dir="rtl">منظر نموذجي لإسقاط ستيريوغرافي <code>stereo</code> ,يمكن فيها رؤية خطوط الكوكبات و نلاحظ وجود كوكبتين تم تخصيص خطوطها بشكل جديد و مختلف عن إعدادات الخارطة الأساسية (note that RA/Dec for boundaries are assumed to be in B1875).</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap',
+		az: 225,
+		projection: 'stereo',
+		constellations: true,
+		constellationboundaries: true,
+		boundaries: [
+			["And",343,34.5,343,52.5,350,52.5,350,50,353.75,50,353.75,48,2.5,48,2.5,46,13,46,13,48,16.75,48,16.75,50,20.5,50,25,50,25,47,30.625,47,30.625,50.5,37.75,50.5,37.75,36.75,30,36.75,30,35,21.125,35,21.125,33,10.75,33,10.75,23.75,12.75,23.75,12.75,21,2.125,21,2.125,22,1,22,1,28,0,28,0,31.33333,356.25,31.33333,356.25,32.08333,352.5,32.08333,352.5,34.5,343,34.5],
+			["Ori",69.25,0,69.25,15.5,74.5,15.5,74.5,16,80,16,80,15.5,84,15.5,84,12.5,86.5,12.5,86.5,18,85.5,18,85.5,22.83333,88.25,22.83333,88.25,21.5,93.25,21.5,93.25,17.5,94.625,17.5,94.625,12,94.625,10,93.625,10,93.625,0,93.625,-4,87.5,-4,87.5,-11,76.25,-11,76.25,-4,70,-4,70,0,69.25,0]
+		],
+		clock:new Date("July 17, 2013 18:39:00 GMT")
+	});
+});
+			</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:944px;height:400px;"&gt;&lt;/div&gt;
+</pre>
+			<div id="starmap2" class="planetarium" style="width:944x;height:400px;"></div>
+			</li>
+			<li class="example" id="ex6"><p dir="rtl">مظهر نموذجي لإسقاط ستيريوغرافي <code>stereo</code> و تظهر في الخارطة نقطة قمنا بتعليمها كرابط للجرم السماوي إلى صفحة معلومات تتحدث عنه بالتفصيل , و هي هنا سديم الجبّار</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		id: 'starmap',
+		projection: 'stereo',
+	});
+
+	planetarium.addPointer({
+		'ra':83.8220792,
+		'dec':-5.3911111,
+		'label':'Orion Nebula',
+		'img':'http://server7.sky-map.org/imgcut?survey=DSS2&w=128&h=128&ra=5.58813861333333&de=-5.3911111&angle=1.25&output=PNG',
+		'url':'http://simbad.u-strasbg.fr/simbad/sim-id?Ident=M42',
+		'credit':'Wikisky',
+		'colour':'rgb(255,220,220)'
+	})
+
+});
+			</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:944px;height:400px;"&gt;&lt;/div&gt;
+</pre>
+			<div id="starmap7" class="planetarium" style="width:944x;height:400px;"></div>
+			</li>
+
+			<li class="example" id="ex7"><p dir="rtl">مظهر نموذجي للإسقاط الغنوموني <code>gnomic-tan</code> و مركز الخارطة يتركز على سديم الجبّار M42</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		'id': 'starmap',
+		'projection': 'gnomic',
+		'ra': 83.8220833,
+		'dec': -5.3911111,
+		'ground': false,
+		'constellations': true,
+		'fov': 15
+	});
+
+});
+			</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:944px;height:400px;"&gt;&lt;/div&gt;
+</pre>
+			<div id="starmap8" class="planetarium" style="width:944x;height:400px;"></div>
+			</li>
+
+			<li class="example" id="ex8"><p dir="rtl">مظهر نموذجي للإسقاط الغنوموني <code>gnomic-tan</code> و مركز الخارطة يتركز على سديم الجبّار M42 , و يلاحظ وجود أزرار تحكم أسفل الخارطة للوصول إلى الأجرام السماوية عن طريق الضغط عليها</p>
+				<pre class="prettyprint lang-js">
+$(document).ready(function() {
+
+	var planetarium = $.virtualsky({
+		'id': 'starmap',
+		'projection': 'gnomic',
+		'ra': 83.8220833,
+		'dec': -5.3911111,
+		'ground': false,
+		'constellations': true,
+		'fov': 15
+	});
+	
+	$('button#moveit').on('click',function(){
+		planetarium.panTo(56.8690917,24.1053111,3000)
+	});
+
+});
+			</pre>
+<pre class="prettyprint lang-html">
+&lt;div id="starmap" style="width:944px;height:400px;"&gt;&lt;/div&gt;
+&lt;button id="moveit"&gt;Move to The Pleiades&lt;/button&gt;
+</pre>
+			<div id="starmap9" class="planetarium" style="width:944x;height:400px;"></div>
+			<button id="pleiades">Move to The Pleiades</button>
+			<button id="M1">Move to M1</button>
+			<button id="M82">Move to M82</button>
+			<button id="M42">Move to M42</button>
+			</li>
+
+
+		</ol>
+
+		<h2 dir="rtl" id="options">الخيارات المتاحة للتحكم بها</h2>
+		<p dir="rtl">يوجد العديد من التفضيلات التي يمكن تغييرها  (بتغيير الوسوم الخاصة بالخريطة القيم النموذجية موجودة ضمن أقواس):</p>
+		<ul dir="rtl">
+			<li><span dir="ltr"><code>id</code> ('starmap')</span> - تغيير وسم ID لعنصر من عناصر ال HTML في المكان الذي تريد وضع الخارطة فيه.</li>
+			<li><span dir="ltr"><code>projection</code> ('polar')</span> - يحدد هذا الوسم نوع الإسقاط المستخدم 'polar'قطبي, 'stereo'ستيريوغرافي, 'lambert'لامبرت, 'ortho', 'equirectangular', 'mollweide', 'planechart' أو عين السمكة'fisheye'</li>
+			<li><span dir="ltr"><code>width</code> (500)</span> - تتحكم بقياس عرض خارطة السماء  إلا إذا قمت بوضع قيم تحدد عرض  العنصر الذي يحوي هذه الخارطة</li>
+			<li><span dir="ltr"><code>height</code> (250)</span> - تتحكم بقياس ارتفاع  خارطة السماء  إلا إذا قمت بوضع قيم تحدد ارتفاع  العنصر الذي يحوي هذه الخارطة</li>
+			<li><span dir="ltr"><code>planets</code></span> - يمكن أن تكتب في شكل object يحتوي على الأجرام السماوية المطلوب إظهارها قي شكل مصفوفة أو في شكل ملف JSON.</li>
+			<li><span dir="ltr"><code>magnitude</code> (5)</span> - نحدد من هنا أقدار النجوم المرئية.</li>
+			<li><span dir="ltr"><code>longitude</code> (53.0)</span> - خط الطول للراصد</li>
+			<li><span dir="ltr"><code>latitude</code> (-2.5)</span> - خط العرض للراصد</li>
+			<li><span dir="ltr"><code>clock</code> (now)</span> - عنصر برمجي جافاسكريبت Javascript Date() object يتحكم بالتاريخ و الوقت للخارطة date/time</li>
+			<li><span dir="ltr"><code>background</code> ('rgba(0,0,0,0)')</span> - التحكم بلون خلفية الخارطة</li>
+			<li><span dir="ltr"><code>transparent</code> (false)</span> - لجعل خلفية الخارطة شفافة</li>
+			<li><span dir="ltr"><code>color</code> ('rgb(255,255,255)')</span> - للتحكم بلون خطوط الكتابة</li>
+			<li><span dir="ltr"><code>az</code> (180)</span> - للتحكم باتجاه الخارطة بين الاتجاهات الأربع azimuthal offset القيمة 0 = للشمال و القيمة 90 = للشرق</li>
+			<li><span dir="ltr"><code>negative</code> (false)</span> - عكس ألوان الخريطة إلى الأبيض و الأسود</li>
+			<li><span dir="ltr"><code>gradient</code> (true)</span> - تفعيل تدرج لمعان النجوم بدءاً من الأفق (محاكاة تأثير الغلاف الجوي)</li>
+			<li><span dir="ltr"><code>ground</code> (false)</span> - إظهار/إخفاء أرضية الأفق (تعمل فقط مع الخرائط التي تظهر كامل السماء)</li>
+			<li><span dir="ltr"><code>keyboard</code> (true)</span> - السماح باستخدام لوحة المفاتيح</li>
+			<li><span dir="ltr"><code>mouse</code> (true)</span> - السماح باستخدام الفأرة</li>
+			<li><span dir="ltr"><code>cardinalpoints</code> (true)</span> - إظهار/إخفاء أسماء الاتجاهات الأربعة N/E/S/W الشرق\الغرب\الشمال\الجنوب</li>
+			<li><span dir="ltr"><code>constellations</code> (false)</span> - إظهار/إخفاء خطوط الكوكبات</li>
+			<li><span dir="ltr"><code>constellationlabels</code> (false)</span> - إظهار/إخفاء أسماء الكوكبات</li>
+			<li><span dir="ltr"><code>constellationboundaries</code> (false)</span> - إظهار/إخفاء خطوط حدود الكوكبات</li>
+			<li><span dir="ltr"><code>meteorshowers</code> (false)</span> - إظهار/إخفاء شعاعات الزخات الشهبية الحالية</li>
+			<li><span dir="ltr"><code>showplanets</code> (true)</span> - إظهار/إخفاء الكواكب</li>
+			<li><span dir="ltr"><code>showplanetlabels</code> (true)</span> - إظهار/إخفاء أسماء الكواكب</li>
+			<li><span dir="ltr"><code>showorbits</code> (false)</span> - إظهار/إخفاء مدارات الكواكب</li>
+			<li><span dir="ltr"><code>showstars</code> (true)</span> - إظهار/إخفاء النجوم</li>
+			<li><span dir="ltr"><code>showstarlabels</code> (false)</span> - إظهار/إخفاء أسماء النجوم اللامعة </li>
+			<li><span dir="ltr"><code>scalestars</code> (1)</span> - تغيير أحجام النجوم الظاهرية في السماء بما يتناسب و القدر و بشكل تناسبي</li>
+			<li><span dir="ltr"><code>showdate</code> (true)</span> - إظهار/إخفاء التاريخ و الوقت</li>
+			<li><span dir="ltr"><code>showposition</code> (true)</span> - إظهار/إخفاء الطول و العرض للراصد</li>
+			<li><span dir="ltr"><code>gridlines_az</code> (false)</span> - إظهار/إخفاء خطوط الإحداثيات السمتية  azimuth/elevation أو الميل\الإنحراف</li>
+			<li><span dir="ltr"><code>gridlines_eq</code> (false)</span> - إظهار/إخفاء خطوط إحداثيات المطلع المستقيم\الميل RA/Dec </li>
+			<li><span dir="ltr"><code>gridlines_gal</code> (false)</span> - إظهار/إخفاء خطوط الإحداثيات المجرّيّة</li>
+			<li><span dir="ltr"><code>gridstep</code> (30)</span> - تحدد لنا مقدار دقة التقسيم و عدد خطوط الإحداثيات الظاهرة عند تفعيل ظهور خطوط الإحداثيات</li>
+			<li><span dir="ltr"><code>ecliptic</code> (false)</span> - إظهار دائرة البروج</li>
+			<li><span dir="ltr"><code>meridian</code> (false)</span> - إظهار دائرة الزوال ( منتصف النهار )</li>
+			<li><span dir="ltr"><code>showgalaxy</code> (false)</span> - إظهار الحدود العامة لدرب التبانة</li>
+			<li><span dir="ltr"><code>live</code> (false)</span> - تحديث خارطة السماء ( خارطة حيّة ) بالتوقيت الحالي</li>
+			<li><span dir="ltr"><code>fontsize</code> </span>- في حال, احتجت إلى تغيير حجم الخط الظاهر في الخارطة (و حالياً يقاس بالبكسل), من هنا تستطيع أن تفرض حجم الخط الذي ترغبه.  مثال "10px"</li>
+			<li><span dir="ltr"><code>fontfamily</code></span> - يستخدم ال VirtualSky عائلة الخطوط التي تمتلكها الصفحة المضيفة للخارطة و لكنها لا تعمل عند استخدام   <code>&lt;iframe&gt;</code>.  لحل هذه المشكلة تستطيع إضافة كود  CSS <code>font-family</code> string.</li>
+		</ul>
+		
+		<h2 dir="rtl" id="tech">تفاصيل تقنية</h2>
+		<p dir='rtl'>تستخدم السماء الافتراضية عنصر كانفاس <a dir="ltr" href="http://diveintohtml5.org/canvas.html#divingin">&lt;canvas&gt; element</a> - و هي إحدى عروض <a href="http://whatwg.org/html5">HTML5 proposal</a> - و بذلك نعتقد بأنها ستعمل ضمن معظم مستكشفات الويب الشهيرة مثل Firefox , و لدينا حالة خاصة ل Firefox 3.0 في Ubuntu ,و كذلك  Opera, و Chrome و المستكشف Safari. كما يعمل على المستكشف Internet Explorer 7.0 و 8.0 باستخدام مكتبة ال <a href="http://code.google.com/p/explorercanvas/">excanvas.js</a> library. تستطيع العودة إلى الرابط <a href="https://github.com/slowe/VirtualSky">code on Github</a>.</p>
+		
+		<h2 dir="rtl" id="alt">صفحات مشابهة</h2>
+		<p dir="rtl">هناك صفحات مشابهة و تستخدم خرائط تعتمد على متصفح الويب و موجودة في شبكة الويب مثل . 
+		<ul dir="rtl">
+		<li><a href="http://ivan.ivanych.net/dev/starmap-canvas/">Ivan Boldyrev's Starchartjs</a></li>
+		<li><a href="http://canvas.staratlas.com/">Luther Huffman's StarAtlas</a></li>
+		<li><a href="http://tonightsky.free.fr/all-sky-map/">Thomas Boch's All Sky Map</a></li>
+		<li> و يستخدم برنامج الستيلاريوم <a href="http://stellarium.org/">Stellarium</a> بشكل واسع بسبب أسلوب عرضه الممتع و ميزاته في عرض السماء, و يعمل هذا البرنامج على أنظمة التشغيل المعروفة Windows , Mac , Linux.</li></p>
+			</div>
+			<p dir="rtl" align="center"><a href="https://sites.google.com/site/interactiveastronomy" target="blanck">إعداد : قتيبة أقرع</a></p>
+</body>
+</html>
+
