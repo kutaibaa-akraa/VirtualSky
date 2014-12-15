@@ -1,5 +1,16 @@
 VirtualSky
 ==========
+‫السماء الافتراضية
+==========
+
+‫خارطة للسماء ضمن صفحة مستكشف الانترنت  ( معدة للعمل ضمن متصفح الويب )
+
+السماء الافتراضية  هو بمثابة قبة فلكية أو خارطة سماوية صممت لتضمينها في صفحات الويب و تشغيلها باستخدام مستكشفات الويب. [عدّل و قم بتضمين الكود من هذه الصفحة ](http://lcogt.net/virtualsky/embed/custom.html). 
+
+* يمكن إظهار السماء [في صفحة كاملة ](http://lcogt.net/virtualsky/embed/index.html?projection=stereo).
+* يمكن تصفح  بعض [الأمثلة المتعددة العروض](http://slowe.github.io/VirtualSky/) 
+* و [ هنا صفحة اختبارية ](http://slowe.github.io/VirtualSky/tests.html).
+
 
 A browser-based planetarium that can be [customized and embedded in web pages](http://lcogt.net/virtualsky/embed/custom.html). View as [full-window](http://lcogt.net/virtualsky/embed/index.html?projection=stereo). Some [examples with code excerpts](http://slowe.github.io/VirtualSky/) and some [unit tests](http://slowe.github.io/VirtualSky/tests.html).
 
